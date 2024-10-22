@@ -1,0 +1,14 @@
+absl-py
+accelerate
+einops
+ipykernel
+jaxtyping
+lpips
+matplotlib
+ml-collections
+tools
+torch
+torchvision
+tqdm
+wandb
+xformers
