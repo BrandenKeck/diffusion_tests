@@ -1,3 +1,5 @@
 *__pycache__
+.idea
+.vscode
 .lightning_studio
 pokemod.pth
