@@ -136,7 +136,7 @@ class PatchEmbed(nn.Module):
 
 
 class UViT(nn.Module):
-    def __init__(self, img_size=128, patch_size=4, in_chans=3, embed_dim=512, depth=12, num_heads=8, mlp_ratio=4.,
+    def __init__(self, img_size=128, patch_size=4, in_chans=3, embed_dim=512, depth=12, num_heads=16, mlp_ratio=4.,
                  qkv_bias=False, qk_scale=None, norm_layer=nn.LayerNorm, mlp_time_embed=False, num_classes=-1,
                  use_checkpoint=False, conv=True, skip=True):
         super().__init__()

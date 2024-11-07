@@ -165,9 +165,7 @@ class UNet(nn.Module):
         # h3 = self.attn3(h3, y_embed)
         h4 = self.conv4(h3) + self.dense4(embed)
         h4 = self.act(self.gnorm4(h4))
-        print(f"Before: {h4.shape}")
         h4 = self.attn4(h4, y_embed)
-        print(f"After: {h4.shape}")
 
         # Decoding path
         h = self.tconv4(h4) + self.dense5(embed)

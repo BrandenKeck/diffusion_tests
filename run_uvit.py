@@ -15,9 +15,9 @@ from uvit.dpm_solver_pp import NoiseScheduleVP, DPM_Solver
 
 
 # Constants
-LR = 1e-6
-DECAY = 0.96
-EPOCHS = 50
+LR = 5e-6
+DECAY = 0.995
+EPOCHS = 5000
 BATCHSIZE = 1
 EVALSTEPS = 25
 EVALOUTPUTS = 64
@@ -44,14 +44,14 @@ def model_fn(x, t_continuous):
 # Prepare data and models
 transform = Compose([
     ToTensor(),
-    CenterCrop([128, 128]),
-    Normalize(3*[NORMMEAN], 3*[NORMSTDEV])
+    CenterCrop([128, 128])#,
+    # Normalize(3*[NORMMEAN], 3*[NORMSTDEV])
 ])
-dataset = ImageFolder("./data/pokemini", transform=transform)
+dataset = ImageFolder("./data/pokesolo", transform=transform)
 dataloader = DataLoader(dataset, batch_size=BATCHSIZE, shuffle=True, num_workers=0)
 model = UViT(img_size=128)
 model.to(DEVICE)
-model.load_state_dict(torch.load(f'./pokemod.pth', weights_only=True))
+# model.load_state_dict(torch.load(f'./uvit_pokemod.pth', weights_only=True))
 model.train()
 score_model = sde.ScoreModel(model, pred='noise_pred', sde=sde.VPSDE())
 optimizer = Adam(model.parameters(), lr=LR)
@@ -74,7 +74,7 @@ for epoch in range(EPOCHS):
     lr_scheduler.step()
     lr = lr_scheduler.get_last_lr()[0]
     if avg_loss / num_items < best_loss:
-        torch.save(model.state_dict(), f'./pokemod.pth')
+        torch.save(model.state_dict(), f'./uvit_pokemod.pth')
         best_loss = avg_loss / num_items
     print(f"Epoch: {epoch+1} [LR: {lr} | Loss: {avg_loss / num_items}]")
 
@@ -82,7 +82,7 @@ for epoch in range(EPOCHS):
 # Load Saved Model
 nnet = UViT(img_size=128)
 nnet.to(DEVICE)
-model.load_state_dict(torch.load(f'./pokemod.pth', weights_only=True))
+model.load_state_dict(torch.load(f'./uvit_.pth', weights_only=True))
 nnet.eval()
 
 
@@ -94,9 +94,9 @@ dpm_solver = DPM_Solver(model_fn, noise_schedule, predict_x0=True, thresholding=
 with torch.no_grad():
   with torch.cuda.amp.autocast():  # inference with mixed precision
     samples = dpm_solver.sample(z_init, steps=EVALSTEPS, eps=1. / len(_betas), T=1.)
-denormalize = Compose([
-    Normalize(mean = 3*[0.], std = 3*[1/NORMSTDEV]),
-    Normalize(mean = 3*[-NORMMEAN], std = 3*[1.])
-])
-samples = denormalize(samples)
+# denormalize = Compose([
+#     Normalize(mean = 3*[0.], std = 3*[1/NORMSTDEV]),
+#     Normalize(mean = 3*[-NORMMEAN], std = 3*[1.])
+# ])
+# samples = denormalize(samples)
 save_image(samples, "uvit_output.png")
