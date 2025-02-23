@@ -17,8 +17,8 @@ diffusion_coeff_fn = functools.partial(diffusion_coeff, sigma=SIGMA, device=DEVI
 model = UViT()
 model.load_state_dict(torch.load(f'uvit_pokemod.pth', weights_only=True))
 model.to(DEVICE)
-sample_batch_size = 64
-num_steps = 100
+sample_batch_size = 1
+num_steps = 300
 sampler = Euler_Maruyama_sampler
 samples = sampler(model,
         marginal_prob_std_fn,
@@ -26,6 +26,6 @@ samples = sampler(model,
         sample_batch_size,
         x_shape=(3, 128, 128),
         num_steps=num_steps,
-        eps=1e-2,
+        eps=1e-3,
         device=DEVICE)
 save_image(samples, "./uvit_output.png")

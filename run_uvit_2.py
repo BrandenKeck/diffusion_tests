@@ -11,7 +11,7 @@ from torchvision.transforms import ToTensor, Compose, CenterCrop, Normalize
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 # Extra
-SIGMA = 16.0
+SIGMA = 25.0
 DEVICE = "cuda"
 from uvit.uvit import UViT
 from uvit.diffusionutil import *
@@ -52,7 +52,7 @@ transform = Compose([
     CenterCrop([128, 128])#,
     # Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
-dataset = ImageFolder("./data/pokemicro", transform=transform)
+dataset = ImageFolder("./data/pokemini", transform=transform)
 
 # Build Model
 # model = torch.nn.DataParallel(
@@ -62,20 +62,43 @@ model = UViT()
 model = model.to(DEVICE)
 
 # Training Step 1
-LR = 1e-4
-EPOCHS = 250
-BATCHSIZE = 1
+LR = 4.12e-4
+EPOCHS = 200
+BATCHSIZE = 32
 DEVICE = 'cuda'
 train_score_model(model, dataset, LR, EPOCHS, BATCHSIZE, device=DEVICE)
 torch.save(model.state_dict(), f'uvit_pokemod.pth')
 
+# Training Step 2
+LR = 1e-4
+EPOCHS = 200
+BATCHSIZE = 16
+DEVICE = 'cuda'
+train_score_model(model, dataset, LR, EPOCHS, BATCHSIZE, device=DEVICE)
+torch.save(model.state_dict(), f'uvit_pokemod.pth')
+
+# Training Step 3
+LR = 2e-5
+EPOCHS = 200
+BATCHSIZE = 4
+DEVICE = 'cuda'
+train_score_model(model, dataset, LR, EPOCHS, BATCHSIZE, device=DEVICE)
+torch.save(model.state_dict(), f'uvit_pokemod.pth')
+
+# Training Step 4
+LR = 1e-6
+EPOCHS = 200
+BATCHSIZE = 1
+DEVICE = 'cuda'
+train_score_model(model, dataset, LR, EPOCHS, BATCHSIZE, device=DEVICE, lr_scheduler_fn=lambda epoch: 1)
+torch.save(model.state_dict(), f'uvit_pokemod.pth')
 
 # Run Sample
 model = UViT()
 model.load_state_dict(torch.load(f'uvit_pokemod.pth', weights_only=True))
 model.to(DEVICE)
 sample_batch_size = 64
-num_steps = 1000
+num_steps = 300
 sampler = Euler_Maruyama_sampler
 samples = sampler(model,
         marginal_prob_std_fn,
@@ -83,7 +106,7 @@ samples = sampler(model,
         sample_batch_size,
         x_shape=(3, 128, 128),
         num_steps=num_steps,
-        eps=1e-5,
+        eps=1e-4,
         device=DEVICE)
 # denormalize = Normalize([-0.485/0.229, -0.456/0.224, -0.406/0.225],
 #                         [1/0.229, 1/0.224, 1/0.225])

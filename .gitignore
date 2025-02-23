@@ -20,3 +20,4 @@
 .vscode
 .lightning_studio
 *.pth
+.vimrc
