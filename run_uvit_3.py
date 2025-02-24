@@ -116,4 +116,4 @@ samples = sampler(model,
         num_steps=num_steps,
         eps=1e-4,
         device=DEVICE)
-# denormalize = Normalize([-0.485/0.229, -0.456/0.224, -0.40
+save_image(samples, "./uvit_shapes.png")
